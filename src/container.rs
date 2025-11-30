@@ -1918,6 +1918,38 @@ impl Docker {
         self.process_into_value(req).await
     }
 
+    async fn get_container_archive_info(
+        &self,
+        container_name: &str,
+        options: Option<impl Into<crate::query_parameters::ContainerArchiveInfoOptions>>,
+    ) -> Result<String, Error> {
+        let url = format!("/containers/{container_name}/archive");
+
+        let req = self.build_request(
+            &url,
+            Builder::new().method(Method::HEAD),
+            options.map(Into::into),
+            Ok(BodyType::Left(Full::new(Bytes::new()))),
+        );
+
+        let container_path_stat_header = "X-Docker-Container-Path-Stat";
+
+        // Grab the header from the response
+        let container_path_stat = self
+            .process_request(req)
+            .await?
+            .headers()
+            .get(container_path_stat_header)
+            .ok_or(Error::HttpHeaderNotFoundError(
+                container_path_stat_header.to_owned(),
+            ))?
+            .to_str()
+            .map_err(|e| Error::HttpHeaderToStrError { err: e })?
+            .to_owned();
+
+        Ok(container_path_stat)
+    }
+
     /// ---
     ///
     /// # Top Processes
