@@ -86,6 +86,30 @@ where
     pub filters: HashMap<T, Vec<T>>,
 }
 
+/// TODO outstanding
+#[derive(Debug, Deserialize)]
+pub struct PathStat {
+    /// Name of the file
+    #[serde(rename = "name")]
+    pub name: String,
+
+    /// File size
+    #[serde(rename = "size")]
+    pub size: i64,
+
+    /// os file Mode
+    #[serde(rename = "mode")]
+    pub mode: String,
+
+    /// time
+    #[serde(rename = "mtime")]
+    pub mtime: BollardDate,
+
+    /// link target
+    #[serde(rename = "linkTarget")]
+    pub link_target: String,
+}
+
 impl<T> From<ListContainersOptions<T>> for crate::query_parameters::ListContainersOptions
 where
     T: Into<String> + Eq + Hash + Serialize,
